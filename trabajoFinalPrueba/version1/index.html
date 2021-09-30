@@ -1,0 +1,36 @@
+<doctype html>
+<html>
+<head>
+<title> FCG 2021 - TPfinal</title>
+
+<!-- estilo-->
+<link href="style.css" rel="stylesheet">
+<script type="text/javascript" id="includedscript" src="sound.js"></script>
+
+
+
+</head>
+<body onresize="WindowResize()">
+    <!-- canvas (WebGL)-->
+    <div id="canvas-div"><canvas id="canvas"></canvas></div>
+    <div id="controls-div">
+    <!-- menu y controles-->  
+    <p>Select a music track from your device</p> 
+    <div class="control">Music :<br/><input id="track" type="file" onchange="LoadMusic(this)" accept="audio/*"/></div>
+   </div>
+    <p>Click the buttons to play or pause the audio.</p>
+    <button onclick="playAudio()" type="button">Play Audio</button>
+    <button onclick="pauseAudio()" type="button">Pause Audio</button> 
+    <div id= "canvas-div2"><canvas id="canvas-music"></canvas></div>
+
+
+<script type="text/javascript" id="includedscript" src="sound.js"></script>
+
+</body>
+
+
+
+</html>
+
+
+
