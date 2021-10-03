@@ -22,7 +22,7 @@ html, body{
   overflow: hidden;
   height: 100vh;
   width: 100vw;
- /* background: black;*/
+  /*background: black;*/
   background: var(--bgColor);
   background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));
   color: var(--textColor);

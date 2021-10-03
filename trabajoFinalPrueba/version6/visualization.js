@@ -100,9 +100,10 @@ function play3(fftSize) {
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });    
     renderer.setSize(window.innerWidth, window.innerHeight); 
+
     /*/////////////////////CAMERA/**/////////////////////////
 
-    camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);   
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);   
     
     //camera.rotation.y += Math.PI/2;
     //camera.lookAt(scene.position);
@@ -140,10 +141,12 @@ function play3(fftSize) {
     fishGroup = new THREE.Group();
     fishGroup.position.set(300,0,0);//300,0,0
 
-    camera.position.set( 40,0,-50);
+    camera.position.set( 0,0,0);
+
+    camera.position.set( 40,0,-30);
     camera.rotation.y -= 1.5;
 
-    //camera.rotation.x += Math.PI;
+
    ;
     //controls = new THREE.OrbitControls(camera, renderer.domElement);
     //controls.update();
@@ -176,10 +179,14 @@ function play3(fftSize) {
     var x= 150;
     var y =-100;
     var z =-250;
-    cubeMaterial2= cubeMaterial.clone();
+    const color = THREE.MathUtils.randInt(0, 0xffffff);
+    cubeMaterial2 = new THREE.MeshLambertMaterial({color:0xffffff});
+
+    //cubeMaterial2= cubeMaterial.clone();
     cubeMaterial2.opacity= 0.5;
     cubeMaterial2.transparent= false;
-    console.log("material",cubeMaterial2);
+    
+    console.log("materialo",cubeMaterial2);
 
     for (var i=0; i< 500;i++){
         cube = new THREE.Mesh(seedGeometry, cubeMaterial2);
@@ -187,9 +194,10 @@ function play3(fftSize) {
         cube.receiveShadow = true;
         cube.name = "fauna"+i;
         cube.position.z = z;
-        cube.material.color.r = 0;// =   0x008000;
-        cube.material.color.g = 128;
-        cube.material.color.b = 0;
+        cube.material.color.setHex(THREE.MathUtils.randInt(0, 0xffffff));
+        //r = 0;// =   0x008000;
+        /*cube.material.color.g = 128;
+        cube.material.color.b = 0;*/
         //console.log(cube.material.color);
         z += 25;       
         
@@ -206,13 +214,15 @@ function play3(fftSize) {
         if ( z == 100){
             y += 30;
             z = -250;
-            cube.material.color.r += 50;
+            //cube.material.color.r += 50;
+            // =   0x008000;
+            console.log("color", cube.material.color);
+
         }
         else if (y >= 90){
             y = -100;
             x -= 50;
             z = -200;
-            cube.material.color.b += 50;
         }     
         cube.position.y = y;
         cube.position.x = x;  
@@ -223,6 +233,9 @@ function play3(fftSize) {
         //console.log(cube.name, cube.position);
         
     }
+
+    var dummy = new THREE.Mesh(SphereGeometry , MeshMaterial);
+    dummy.position.set(300, 0,0);
 
     /*/////////////////////////LOADING Scene Objects ////////////*/
 
@@ -236,7 +249,8 @@ function play3(fftSize) {
         copy.name ='actual_fish_group'+i;
         copy.children[0].name = "actual_fish_mesh"+i;
         copy.position.set(50,-60+20*i,0);
-        copy.rotation.y+= Math.PI/2;   
+        copy.rotation.y+= Math.PI/2;
+        
 
     //fishGroup.add( gltf.scene );
         //var box = fishGroup.getObjectByName('box'+i);
@@ -271,23 +285,39 @@ function play3(fftSize) {
     
 
     /*///////////////LIGTHS///////////////*/
-    color = 0xffffff;//0xff3300;
-    ambientLight = new THREE.AmbientLight(color);
+    //color = 0xffffff;//0xff3300;
+    ambientLight = new THREE.AmbientLight(0xffffff);
     
-    spotLight = new THREE.SpotLight(0xff3300);
+    spotLight = new THREE.SpotLight(0x0000ff);
     spotLight.castShadow = true;
-    spotLight.position.set(-10,50,100);
+    spotLight.position.set(-10,50,700);
     spotLight.intensity =0.4;
 
-    var spotlight2 = new THREE.SpotLight(0xff3300);
-    spotlight2.position.set(+90,100,-100);
 
-    directionalLight = new THREE.DirectionalLight(0xffffff);
-    directionalLight.position.set(50,50,50);
+    var spotlight2 = new THREE.SpotLight(0x0000ff);
+    spotlight2.position.set(-100,50,-700);
+    spotlight2.castShadow = true;
+
+    var spotlight3 = new THREE.SpotLight(0xff0000);
+    spotlight3.position.set(+700,50,100);
+    spotlight3.castShadow = true;
+    spotlight3.rotation.x -=1.5;
+    
+    var spotlight4 = new THREE.SpotLight(0xffffff);
+    spotlight4.position.set(-700,50,100);
+    spotlight4.castShadow = true;
+    spotlight4.rotation.x -=1.5;
+
+    directionalLight = new THREE.DirectionalLight(0x0000ff);
+    directionalLight.position.set(-3000,-50,50);
     directionalLight.intensity =0.4;
 
     const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x000000, 0.25 );
-
+    
+    const helper = new THREE.SpotLightHelper( spotLight, 0xffffff );
+    const helper2 = new THREE.SpotLightHelper( spotlight2, 0xff0000 );
+    const helper3 = new THREE.SpotLightHelper( spotlight3, 0x00ffff );
+    const helper4 = new THREE.SpotLightHelper( spotlight4, 0x0000ff );
 
 
     /*////////////////////ADDING TO SCENE///////////////////**/
@@ -301,13 +331,20 @@ function play3(fftSize) {
     //scene.add(planeVert);
     //scene.add(faunaGroup);
     scene.add(ambientLight);    
-    scene.add(spotLight);
-    scene.add(spotlight2 );
-    scene.add( hemiLight );
+    fishGroup.add(spotLight);
+    fishGroup.add(spotlight2 );
+    fishGroup.add(spotlight3 );
+    fishGroup.add(spotlight4 );
+    scene.add(dummy);
+   /* fishGroup.add(helper);
+    fishGroup.add(helper2);
+    fishGroup.add(helper3);
+    fishGroup.add(helper4);*/
+   // scene.add( hemiLight );
     //scene.add(camera); 
     //scene.add(directionalLight);
-    console.log("SE ACTUALIZA");
-
+    console.log("SE ACT132131313UALIZA");
+    console.log("fjhsl");
     //initialRender();
     render3();
     document.getElementById('out').appendChild(renderer.domElement);
@@ -346,9 +383,11 @@ function play3(fftSize) {
         //box.material.color.set(Math.floor(fishFrequency[i]), 0,overallAvg);
     }
 
-    //centerGroup.rotation.y +=0.01;//*audio.playbackRate;
-    //camera.rotation.y +=0.01;
-    //fishGroup.rotation.z += 0.001;   
+    if(frequencyArray[0]>0){
+        centerGroup.rotation.y -=0.01;//*audio.playbackRate;
+        camera.rotation.y -=0.01;
+        fishGroup.rotation.z -= 0.005*speed;
+    }
 
     /* /////////////////////Desaparecer cajas ///////////////////* */
 
@@ -369,7 +408,7 @@ function play3(fftSize) {
                 box.scale.set(3,3,3);               
             }
        // box.material.color.set(0,168,frequencyArray[i]);
-        console.log("fsf");
+        //console.log("fsf");
 
         }else{
             box.visible = false;
@@ -459,19 +498,32 @@ function play3(fftSize) {
 
    // plane.position.x+=0.1;
 
-   
+   /*////CHANGE LIGHTS ///////*/
 
 
+   spotLight.intensity = lowerMax;
+   spotlight2.intensity = upperMax;
+   spotlight3.intensity = lowerMax;
+  if(upperMax>250){
+   spotlight4.intensity = upperMax;   
+   }else{
+    spotlight4.intensity = 0;
+   }
+   console.log("fjslfjintensity", spotLight.intensity );
 
 
+   // console.log("df",lowerAvgFr) ;
 
-    var h = upperAvgFr;
+    ambientLight.intensity = frequencyArray[0];
+    var h = upperAvg;
     var s = 0.4;
     var l = 0.4;
     ambientLight.color.setHSL ( h, s, l );  
+
     renderer.render(scene, camera);
     window.requestAnimationFrame(render3);
-    }   
+    }  
+
 
     lastData = frequencyArray;
 
@@ -750,7 +802,23 @@ function play2(fftSize) {
     var h = high_average;
     var s = 0.4;
     var l = 0.4;
-    ambientLight.color.setHSL ( h, s, l );  
+    //ambientLight.color.setHSL ( h, s, l );
+    /*if( lowerMaxFr< 0.25){
+        ambientLight.intensity =0;
+        spotLight.intensity = 0;
+        spotlight2.intensity = 0;
+        spotlight3.intensity = 0;
+        spotlight4.intensity = 0;
+
+    }  
+    if( lowerMaxFr >0.3){
+        ambientLight.intensity =1;
+        spotLight.intensity =1;
+        spotlight2.intensity = 1;
+        spotlight3.intensity = 1;
+        spotlight4.intensity = 1;
+
+    }  */
     renderer.render(scene, camera);
     window.requestAnimationFrame(render2);
     }   
