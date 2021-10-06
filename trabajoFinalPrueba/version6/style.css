@@ -22,19 +22,20 @@ html, body{
   overflow: hidden;
   height: 100vh;
   width: 100vw;
-  /*background: black;*/
+ /* background: black;*/
   background: var(--bgColor);
   background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));
+  background-image:  'hokusai_painting.jpg';
   color: var(--textColor);
   font-family: 'Saira', sans-serif;
   position: relative;
   
 }
 /*Selects all elements*/
-*{
+/**{
   box-sizing: border-box;
   transition: all 0.12s cubic-bezier(0.42, 0.54, 0.22, 1.26);
-}
+}*/
 
 #canvas {
   position: fixed;
@@ -57,8 +58,8 @@ label.button{
 }
 label.button2{
   position:  fixed;
-  top: 20;
-  left:  75%; 
+  top: 40;
+  left:  80%; 
 }
 
 audio {
