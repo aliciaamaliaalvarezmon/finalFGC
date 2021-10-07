@@ -3,12 +3,12 @@
    puede ser útil para declarar variables CSS globales:
 */
 :root{
-  --bgColor : hsla(242, 86%, 6%, 1);
-  --bgColorLight : hsla(242, 86%, 24%, 1);
-  --textColor : hsla(242, 86%, 88%, 1);
-  --textColorDark : hsla(242, 36%, 0%, 1);
-  --paperColor: hsla(242, 86%, 44%, 1);
-  --paperColorDark: hsla(242, 86%, 34%, 1);
+  --bgColor : hsla(260, 86%, 6%, 1);
+  --bgColorLight : hsla(260, 86%, 24%, 1);
+  --textColor : hsla(260, 86%, 88%, 1);
+  --textColorDark : hsla(260, 36%, 0%, 1);
+  --paperColor: hsla(260, 86%, 44%, 1);
+  --paperColorDark: hsla(260, 86%, 34%, 1);
   --shadowColorFaint: hsla(0, 0%, 0%, 0.2);
 }
 
@@ -24,8 +24,7 @@ html, body{
   width: 100vw;
  /* background: black;*/
   background: var(--bgColor);
-  background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));
-  background-image:  'hokusai_painting.jpg';
+  background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));   
   color: var(--textColor);
   font-family: 'Saira', sans-serif;
   position: relative;
@@ -45,7 +44,7 @@ html, body{
   height: 100%;
 }
 
-#button{
+#button, #button2, #button3{
   color: var(--papelColorDark);
 }
 label.button{
@@ -53,12 +52,16 @@ label.button{
   top: 0;
   left:  80%; 
 }
-#button2{
-  color: var(--papelColorDark);
-}
+
+
 label.button2{
   position:  fixed;
   top: 40;
+  left:  80%; 
+}
+label.button3{
+  position:  fixed;
+  top: 60;
   left:  80%; 
 }
 

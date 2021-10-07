@@ -16,6 +16,10 @@ var upperHalfArray;
 var overallAvg; 
 var normaloveAvg;
 var high_average;
+var lowerMaxFr ;
+var lowerAvgFr ;
+var upperMaxFr  ;   
+var upperAvgFr ;
 
 var analyser;
 var controls, guiControls, datGUI;
@@ -28,6 +32,17 @@ var fishFrequencyIndex = [0,2,6,12,46,93,136,325,512];
 var fishFrequency = new Uint8Array(FishQuantity);
 var fishCol;
 var joya =[];
+var rotation_global = false;
+var rotation_local = false;
+
+
+function LocalRotate(){
+    rotation_local = !rotation_local;
+}
+
+function GlobalRotate(){
+    rotation_global = !rotation_global;
+}
 
 
 ///Applies when it plays a song.
@@ -103,19 +118,29 @@ function play3(fftSize) {
     speed = document.getElementById('thespeedbar').value;
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });    
-    renderer.setSize(window.innerWidth, window.innerHeight);     
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+
+
+
+
+    var texture_loader = new THREE.TextureLoader();
+    texture_loader.load("textures/seafloor.png", function(texture){
+        scene.background = texture;
+    });    
     
     /*/////////////////////GEOMETRY AND MATERIALS/**/////////////////////////
 
     var lambertMaterial = new THREE.MeshLambertMaterial({
-        color: 0x0000ff,
+        color: 0xff0000,
         wireframe: false
     }); 
     var MeshMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, opacity:0.7, transparent:true, wireframe: true} );    
-    var SphereGeometry = new THREE.SphereBufferGeometry(30, 10);
+    var SphereGeometry = new THREE.SphereBufferGeometry(100, 50);
     
     cubeGeometry = new THREE.BoxGeometry(10, 10, 15);
-    seedGeometry = new THREE.BoxGeometry(3, 3, 3); 
+    seedGeometry = new THREE.IcosahedronGeometry(3.0);//new THREE.BoxGeometry(3, 3, 3); 
     /*/////////////////////CAMERA/**/////////////////////////
 
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);   
@@ -135,7 +160,9 @@ function play3(fftSize) {
     centerGroup.name = 'centerGroup';
 
     faunaGroup = new THREE.Group();
-    faunaGroup.name = 'faunaGroup';    
+    faunaGroup.name = 'faunaGroup';  
+
+    const texture = new THREE.TextureLoader().load( 'textures/particle_texture.jpeg' );  
 
 
     //const color = THREE.MathUtils.randInt(0, 0xffffff);
@@ -143,10 +170,25 @@ function play3(fftSize) {
     var color3= 0x2e8b57;
     var color1= 0xffff55;
     cubeMaterial2 = new THREE.MeshLambertMaterial({color:color1});
-    cubeMaterial2.opacity= 0.5;
-    cubeMaterial2.transparent= false;
+    cubeMaterial2.opacity= 1;
+    cubeMaterial2.blending = THREE.AdditiveBlending;
+    cubeMaterial2.transparent= true;
+    cubeMaterial2.map = texture;
     cubeMaterial3= new THREE.MeshLambertMaterial({color:color2}); 
+    cubeMaterial3.opacity= 1;
+    cubeMaterial3.blending = THREE.AdditiveBlending;
+    cubeMaterial3.transparent= true;
+    cubeMaterial3.map = texture;
     cubeMaterial4= new THREE.MeshLambertMaterial({color:color3});
+    cubeMaterial4.opacity= 1;
+    cubeMaterial4.blending = THREE.AdditiveBlending;
+    cubeMaterial4.transparent= true;
+    cubeMaterial4.map = texture;
+
+
+
+  
+   
 
     var colorvar = 0;
     var x= 150;
@@ -193,9 +235,33 @@ function play3(fftSize) {
         fishGroup.add(cube);              
     }
 
+    let uniforms = {
+        colorB: {type: 'vec3', value: new THREE.Color(0x000000)},
+        colorA: {type: 'vec3', value: new THREE.Color(0xffffff)},
+        musicAvg:{type:'float', value: 1.0},
+    }
+    const DummyMaterial =   new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    fragmentShader: fragmentShader(),
+    vertexShader: vertexShader(),
+    });
+
+    var dummy = new THREE.Mesh(SphereGeometry , DummyMaterial);
+    dummy.position.set(1000, 0,100);
+    dummy.name = "dummy";
+
+    var dummy2 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
+    dummy2.position.set(-1000, 0,100);
+
+    var dummy3 = new THREE.Mesh(SphereGeometry , lambertMaterial);
+    dummy3.position.set(0, 0,1000);
+
+    var dummy4 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
+    dummy4.position.set(0, 0,-1000);
+
 
    
-    fishCol= document.getElementById('fishColor').value;  
+    //fishCol= document.getElementById('fishColor').value;  
     /*/////////////////////////LOADING Scene Objects ////////////*/
 
     const loader = new THREE.GLTFLoader();
@@ -211,16 +277,15 @@ function play3(fftSize) {
         copy.rotation.y+= Math.PI/2;
         copy.receiveShadow = true;        
         copy.children[0].receiveShadow = true;
-        copy.children[0].material = lambertMaterial.clone();
-        copy.children[0].material.color.r= hexToRgb(fishCol)[0];
-        copy.children[0].material.color.g= hexToRgb(fishCol)[1];
-        copy.children[0].material.color.b= hexToRgb(fishCol)[2];
+        //copy.children[0].material = lambertMaterial.clone();
         joya.push(copy.children[0]);
         fishGroup.getObjectByName('fish_container'+i).add(copy);      
     }
     }, undefined, function ( error ) {
     console.error( error );
     } );  
+
+
 
     /*///////////////LIGTHS///////////////*/
     //color = 0xffffff;//0xff3300;
@@ -232,12 +297,16 @@ function play3(fftSize) {
     spotlight3.position.set(+700,50,100);
     spotlight3.castShadow = true;
     spotlight3.rotation.x -=1.5;
+    spotlight3.target = fishGroup;
     
     var spotlight4 = new THREE.SpotLight(0x0000ff);
     spotlight4.name = "spotlight4";
     spotlight4.position.set(-700,50,100);
     spotlight4.castShadow = true;
     spotlight4.rotation.x -=1.5;
+    spotlight4.target = fishGroup;
+
+    console.log("light?", fishGroup);
 
     const helper3 = new THREE.SpotLightHelper( spotlight3, 0x00ffff );
     const helper4 = new THREE.SpotLightHelper( spotlight4, 0x0000ff );
@@ -247,12 +316,16 @@ function play3(fftSize) {
     fishGroup.add(faunaGroup);
     centerGroup.add(fishGroup);
     scene.add(centerGroup);    
-    scene.add(ambientLight);  
-    fishGroup.add(spotlight3 );
-    fishGroup.add(spotlight4 );
-   // scene.add(dummy);
-    fishGroup.add(helper3);
-    fishGroup.add(helper4);
+    scene.add(ambientLight);
+    
+   // fishGroup.add(spotlight3 );
+    //fishGroup.add(spotlight4 );
+    scene.add(dummy);
+    scene.add(dummy2);
+    scene.add(dummy3);
+    scene.add(dummy4);
+    //fishGroup.add(helper3);
+    //fishGroup.add(helper4);
     //scene.add(camera);
     render3();
     document.getElementById('out').appendChild(renderer.domElement);    
@@ -267,7 +340,9 @@ function play3(fftSize) {
         rotation_update(scene, speed);
         /* /////////////////////Desaparecer cajas ///////////////////* */
         fauna_update(scene, frequencyArray);
+
         /*///////////////Frequency AGG /////////////////*/
+        dummy_update(scene, lowerAvgFr);
         freq_stats_update(); 
         /*////CHANGE LIGHTS ///////*/
         lights_update(scene);
@@ -333,20 +408,24 @@ function freq_stats_update(){
 
 function rotation_update(scene, speed){
     if(frequencyArray[0]>0){
-        scene.getObjectByName('centerGroup').rotation.y +=0.01;//*audio.playbackRate;
-        camera.rotation.y +=0.01;
-        scene.getObjectByName('centerGroup').children[0].rotation.z -= 0.005*speed;
+        if(rotation_global){
+            scene.getObjectByName('centerGroup').rotation.y +=0.01;//*audio.playbackRate;
+            camera.rotation.y +=0.01;
+        }
+        if(rotation_local){
+            scene.getObjectByName('centerGroup').children[0].rotation.z -= 0.005*speed;
+        }
     }
 }
 
 
 
 function lights_update(scene){
-        scene.getObjectByName('centerGroup').children[0].getObjectByName("spotlight3").intensity = lowerMaxFr;
+       // scene.getObjectByName('centerGroup').children[0].getObjectByName("spotlight3").intensity = lowerMaxFr;
        // console.log("df",lowerAvgFr) ;
         scene.getObjectByName('ambientLight').intensity = frequencyArray[0]/100;
         if(frequencyArray>200){
-            var h = 50;
+            var h = 100;
             var s = 0.4;
             var l = 0.4;
         }else{
@@ -402,14 +481,15 @@ window.onload = vizInit();
 
 
 
- /*   function vertexShader() {
+   function vertexShader() {
     return `
         varying vec3 vUv; 
+        uniform float musicAvg;
 
         void main() {
             vUv = position; 
 
-        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+        vec4 modelViewPosition = modelViewMatrix * vec4(position+vec3(musicAvg, 1.0,1.0), 1.0);
         gl_Position = projectionMatrix * modelViewPosition; 
         }
     `
@@ -425,17 +505,15 @@ window.onload = vizInit();
       }
     `
     }
-    let uniforms = {
-        colorB: {type: 'vec3', value: new THREE.Color(0x000000)},
-        colorA: {type: 'vec3', value: new THREE.Color(0x74ebd5)}
-    }
-    const DummyMaterial =   new THREE.ShaderMaterial({
-    uniforms: uniforms,
-    fragmentShader: fragmentShader(),
-    vertexShader: vertexShader(),
-  })
 
 
 
-    var dummy = new THREE.Mesh(SphereGeometry , DummyMaterial);
-    dummy.position.set(300, 0,0);*/
+
+function dummy_update(scene, lowerAvgFr){
+    //console.log("djlad", scene.getObjectByName("dummy"));
+    console.log(typeof lowerAvgFr);
+    jojo=parseFloat(lowerAvgFr);
+    console.log("jojo",jojo); 
+    scene.getObjectByName("dummy").material.uniforms.musicAvg=jojo;
+    //scene.getObjectByName("dummy").material.needsUpdate = true;
+}
