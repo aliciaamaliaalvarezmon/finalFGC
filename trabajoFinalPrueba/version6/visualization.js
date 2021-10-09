@@ -138,7 +138,8 @@ function play3(fftSize) {
     }); 
     var MeshMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, opacity:0.7, transparent:true, wireframe: true} );    
     var SphereGeometry = new THREE.SphereBufferGeometry(100, 50);
-    
+    var TorusGeometry = new THREE.TorusGeometry(1200, 600, 100,100);
+
     cubeGeometry = new THREE.BoxGeometry(10, 10, 15);
     seedGeometry = new THREE.IcosahedronGeometry(3.0);//new THREE.BoxGeometry(3, 3, 3); 
     /*/////////////////////CAMERA/**/////////////////////////
@@ -236,21 +237,34 @@ function play3(fftSize) {
     }
 
     let uniforms = {
-        colorB: {type: 'vec3', value: new THREE.Color(0x000000)},
-        colorA: {type: 'vec3', value: new THREE.Color(0xffffff)},
-        musicAvg:{type:'float', value: 1.0},
+        colorB: {type: 'vec3', value: new THREE.Color(0xffffff)},
+        colorA: {type: 'vec3', value: new THREE.Color(0xff0000)},
+        musicAvg:{type:'float', value: 5.0},
+        time:{type:'float', value: 0.0}, 
+        musicHigh:{type:'float', value: 1.0},
+        musicLow:{type:'float', value: 1.0} ,          
+
     }
-    const DummyMaterial =   new THREE.ShaderMaterial({
+    const DummyMaterial =   new THREE.ShaderMaterial({        
     uniforms: uniforms,
     fragmentShader: fragmentShader(),
     vertexShader: vertexShader(),
+    blending: THREE.AdditiveBlending,
+    transparent:false,
+    depthWrite: false,
+    depthTest: true,
     });
 
-    var dummy = new THREE.Mesh(SphereGeometry , DummyMaterial);
-    dummy.position.set(1000, 0,100);
+    var dummy = new THREE.Mesh(TorusGeometry , DummyMaterial);
+    //dummy.rotation.y +=1.5; 
+    dummy.rotation.x +=Math.PI/2; 
+    dummy.position.set(300, 0,-100);
+
+    //dummy.position.set(300, 0,100);
+    
     dummy.name = "dummy";
 
-    var dummy2 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
+    /*var dummy2 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
     dummy2.position.set(-1000, 0,100);
 
     var dummy3 = new THREE.Mesh(SphereGeometry , lambertMaterial);
@@ -258,7 +272,7 @@ function play3(fftSize) {
 
     var dummy4 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
     dummy4.position.set(0, 0,-1000);
-
+*/
 
    
     //fishCol= document.getElementById('fishColor').value;  
@@ -321,9 +335,9 @@ function play3(fftSize) {
    // fishGroup.add(spotlight3 );
     //fishGroup.add(spotlight4 );
     scene.add(dummy);
-    scene.add(dummy2);
+    /*scene.add(dummy2);
     scene.add(dummy3);
-    scene.add(dummy4);
+    scene.add(dummy4);*/
     //fishGroup.add(helper3);
     //fishGroup.add(helper4);
     //scene.add(camera);
@@ -342,7 +356,7 @@ function play3(fftSize) {
         fauna_update(scene, frequencyArray);
 
         /*///////////////Frequency AGG /////////////////*/
-        dummy_update(scene, lowerAvgFr);
+       // dummy_update(scene, lowerAvgFr);
         freq_stats_update(); 
         /*////CHANGE LIGHTS ///////*/
         lights_update(scene);
@@ -476,21 +490,47 @@ var vizInit = function (){
 
 
 
+
 window.onload = vizInit();
 
+/*precision highp float;
+varying vec3 vNormal;
 
+#pragma glslify: snoise4 = require(glsl-noise/simplex/4d)
+
+uniform float u_time;
+uniform float u_amplitude;
+uniform float u_frequency;
+
+void main () {
+  vNormal = normalMatrix * normalize(normal);
+  float distortion = snoise4(vec4(normal * u_frequency, u_time)) * u_amplitude;
+  vec3 newPosition = position + (normal * distortion);
+
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+}*/
 
 
    function vertexShader() {
     return `
         varying vec3 vUv; 
         uniform float musicAvg;
+        uniform float musicHigh;
+        uniform float musicLow;
+
+        uniform float time;               
+        
 
         void main() {
             vUv = position; 
-
-        vec4 modelViewPosition = modelViewMatrix * vec4(position+vec3(musicAvg, 1.0,1.0), 1.0);
-        gl_Position = projectionMatrix * modelViewPosition; 
+        vec3 transformed = vec3(position);
+        if(musicAvg>0.0){
+            transformed.z = position.x + position.z*musicAvg;
+            transformed.y = position.y * musicHigh*10.0;
+        }       
+  
+        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * modelViewPosition ; 
         }
     `
     }
@@ -500,8 +540,11 @@ window.onload = vizInit();
       uniform vec3 colorB; 
       varying vec3 vUv;
 
+
       void main() {
-        gl_FragColor = vec4(mix(colorA, colorB, vUv.z), 1.0);
+        float alpha = smoothstep(0.0, 1.0, vUv.z);
+        float colorMix = smoothstep(1.0, 2.0, vUv.z);
+        gl_FragColor = vec4(colorA, 0.5);
       }
     `
     }
@@ -512,8 +555,19 @@ window.onload = vizInit();
 function dummy_update(scene, lowerAvgFr){
     //console.log("djlad", scene.getObjectByName("dummy"));
     console.log(typeof lowerAvgFr);
-    jojo=parseFloat(lowerAvgFr);
+    jojo=parseFloat(lowerAvgFr)*100.0;
     console.log("jojo",jojo); 
-    scene.getObjectByName("dummy").material.uniforms.musicAvg=jojo;
+    scene.getObjectByName("dummy").material.uniforms['musicAvg'].value=jojo;
+    scene.getObjectByName("dummy").material.uniforms['time'].value=window.performance.now();
     //scene.getObjectByName("dummy").material.needsUpdate = true;
 }
+
+
+    /*    void main() {
+            vUv = position; 
+        vec3 transformed = vec3(position); 
+        transformed.x = position.x + position.y/musicAvg*10.0;     
+        vec4 modelViewPosition = modelViewMatrix * vec4(position+vec3(musicAvg, musicAvg,musicAvg), 1.0);
+        gl_Position = projectionMatrix * modelViewPosition ; 
+        }
+    `*/
