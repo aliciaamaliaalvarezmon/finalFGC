@@ -9,6 +9,7 @@ var speed;
 var scene, camera, renderer;
 
 
+
 /*//////////////Data_medium variables/////////////////*/
 var frequencyArray;
 var lowerHalfArray; 
@@ -24,6 +25,7 @@ var upperAvgFr ;
 var analyser;
 var controls, guiControls, datGUI;
 
+var art_time = 0.0;
 /*////////Fish Variables///////*/
 
 var FishQuantity = 8;
@@ -356,7 +358,7 @@ function play3(fftSize) {
         fauna_update(scene, frequencyArray);
 
         /*///////////////Frequency AGG /////////////////*/
-       // dummy_update(scene, lowerAvgFr);
+        dummy_update(scene, lowerAvgFr);
         freq_stats_update(); 
         /*////CHANGE LIGHTS ///////*/
         lights_update(scene);
@@ -513,38 +515,39 @@ void main () {
 
    function vertexShader() {
     return `
+        attribute float vertexDisplacement;
         varying vec3 vUv; 
         uniform float musicAvg;
         uniform float musicHigh;
         uniform float musicLow;
 
-        uniform float time;               
-        
+        uniform float time;         
 
         void main() {
-            vUv = position; 
+        vUv = position; 
         vec3 transformed = vec3(position);
-        if(musicAvg>0.0){
-            transformed.z = position.x + position.z*musicAvg;
-            transformed.y = position.y * musicHigh*10.0;
+        if(musicAvg>0.0){             
+            transformed.x = position.x - musicAvg*5.0;
         }       
   
-        vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+        vec4 modelViewPosition = modelViewMatrix * vec4(transformed, 1.0);
         gl_Position = projectionMatrix * modelViewPosition ; 
         }
     `
     }
     function fragmentShader(){
       return `
+
       uniform vec3 colorA; 
-      uniform vec3 colorB; 
+      uniform vec3 colorB;
+      uniform float musicAvg; 
       varying vec3 vUv;
 
 
       void main() {
-        float alpha = smoothstep(0.0, 1.0, vUv.z);
+        
         float colorMix = smoothstep(1.0, 2.0, vUv.z);
-        gl_FragColor = vec4(colorA, 0.5);
+        gl_FragColor = vec4(colorA, musicAvg/100.0);
       }
     `
     }
@@ -557,8 +560,12 @@ function dummy_update(scene, lowerAvgFr){
     console.log(typeof lowerAvgFr);
     jojo=parseFloat(lowerAvgFr)*100.0;
     console.log("jojo",jojo); 
+    joje = parseFloat(upperAvgFr)*100.0;
     scene.getObjectByName("dummy").material.uniforms['musicAvg'].value=jojo;
-    scene.getObjectByName("dummy").material.uniforms['time'].value=window.performance.now();
+    scene.getObjectByName("dummy").material.uniforms['musicHigh'].value=joje;
+
+    scene.getObjectByName("dummy").material.uniforms['time'].value=art_time/1000;
+    art_time++;
     //scene.getObjectByName("dummy").material.needsUpdate = true;
 }
 
@@ -570,4 +577,6 @@ function dummy_update(scene, lowerAvgFr){
         vec4 modelViewPosition = modelViewMatrix * vec4(position+vec3(musicAvg, musicAvg,musicAvg), 1.0);
         gl_Position = projectionMatrix * modelViewPosition ; 
         }
+
+        
     `*/
