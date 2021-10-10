@@ -122,6 +122,12 @@ function play3(fftSize) {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });    
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    lowerHalfArray = frequencyArray.slice(0, (frequencyArray.length/2) - 1);
+    lowerAvg = avg(lowerHalfArray);
+    lowerAvgFr = lowerAvg / lowerHalfArray.length;
+
+    var musicAvg = lowerAvgFr*100.0;
+
 
 
 
@@ -131,6 +137,9 @@ function play3(fftSize) {
     texture_loader.load("textures/seafloor.png", function(texture){
         scene.background = texture;
     });    
+
+    var texture_loader2 = new THREE.TextureLoader();
+    var texture2 = createDataTexture(frequencyArray,musicAvg );//texture_loader2.load("textures/hokusai_painting.jpg");    
     
     /*/////////////////////GEOMETRY AND MATERIALS/**/////////////////////////
 
@@ -238,13 +247,27 @@ function play3(fftSize) {
         fishGroup.add(cube);              
     }
 
+    /*frequencyArray2 = new Uint8Array(frequencyArray.length*3);
+
+    for(var i = 0; i< frequencyArray.length; i++){
+        frequencyArray2[i+0]= frequencyArray[i];
+        frequencyArray2[i+1]= frequencyArray[i+1];
+        frequencyArray2[i+2]= frequencyArray[i+2];
+
+    }*/    
+
+    //var texture2 =new THREE.DataTexture( frequencyArray2, 512, 1, THREE.RGBFormat );
+
+
+
     let uniforms = {
         colorB: {type: 'vec3', value: new THREE.Color(0xffffff)},
         colorA: {type: 'vec3', value: new THREE.Color(0xff0000)},
         musicAvg:{type:'float', value: 5.0},
         time:{type:'float', value: 0.0}, 
         musicHigh:{type:'float', value: 1.0},
-        musicLow:{type:'float', value: 1.0} ,          
+        musicLow:{type:'float', value: 1.0} , 
+        spectrum:{type:'t', value: texture2},         
 
     }
     const DummyMaterial =   new THREE.ShaderMaterial({        
@@ -344,7 +367,10 @@ function play3(fftSize) {
     //fishGroup.add(helper4);
     //scene.add(camera);
     render3();
-    document.getElementById('out').appendChild(renderer.domElement);    
+    document.getElementById('out').appendChild(renderer.domElement); 
+
+
+
 
 
     function render3(){
@@ -481,7 +507,6 @@ function hexToRgb(h){return['0x'+h[1]+h[2]|0,'0x'+h[3]+h[4]|0,'0x'+h[5]+h[6]|0]}
 
 
 
-
 var vizInit = function (){    
   
   var audio = document.getElementById("audio"); 
@@ -517,17 +542,27 @@ void main () {
     return `
         attribute float vertexDisplacement;
         varying vec3 vUv; 
+        varying vec2 vao; 
         uniform float musicAvg;
         uniform float musicHigh;
         uniform float musicLow;
 
-        uniform float time;         
+        uniform float time;  
+
+        
 
         void main() {
+
         vUv = position; 
         vec3 transformed = vec3(position);
+
+        vao= uv;
+
+
+
         if(musicAvg>0.0){             
-            transformed.x = position.x - musicAvg*5.0;
+            transformed.x = position.x - musicAvg*5.0;            
+
         }       
   
         vec4 modelViewPosition = modelViewMatrix * vec4(transformed, 1.0);
@@ -540,19 +575,53 @@ void main () {
 
       uniform vec3 colorA; 
       uniform vec3 colorB;
-      uniform float musicAvg; 
+      varying vec2 vao; 
+      uniform float musicAvg;
+      uniform sampler2D spectrum; 
       varying vec3 vUv;
 
 
       void main() {
+
+        
         
         float colorMix = smoothstep(1.0, 2.0, vUv.z);
-        gl_FragColor = vec4(colorA, musicAvg/100.0);
+        gl_FragColor = texture2D(spectrum, vao);
+        
       }
     `
     }
 
 
+function createDataTexture(frequencyArray, musicAvg){
+const width = 512;
+const height = 512;
+
+var color1 = 50.0;
+const size = width * height;
+const data = new Uint8Array( 3 * size );
+var frequencyClone = frequencyArray;
+
+
+
+
+for ( let i = 0; i < size; i ++ ) {
+
+    const stride = i * 3;
+    
+
+    data[ stride ] = frequencyClone[i%256];
+    data[ stride + 1 ] = 0.0;
+    data[ stride + 2 ] = 0.0;
+
+
+
+}
+// used the buffer to create a DataTexture
+
+const texture = new THREE.DataTexture( data, width, height, THREE.RGBFormat );
+return texture;
+}
 
 
 function dummy_update(scene, lowerAvgFr){
@@ -563,8 +632,9 @@ function dummy_update(scene, lowerAvgFr){
     joje = parseFloat(upperAvgFr)*100.0;
     scene.getObjectByName("dummy").material.uniforms['musicAvg'].value=jojo;
     scene.getObjectByName("dummy").material.uniforms['musicHigh'].value=joje;
-
     scene.getObjectByName("dummy").material.uniforms['time'].value=art_time/1000;
+
+    scene.getObjectByName("dummy").material.uniforms['spectrum'].value= createDataTexture(frequencyArray, jojo);
     art_time++;
     //scene.getObjectByName("dummy").material.needsUpdate = true;
 }
