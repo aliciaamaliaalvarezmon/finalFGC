@@ -71,8 +71,7 @@ function ChangeFishColor(param){
         fishContainer.children[0].children[0].material.color.r= hexToRgb(fishCol)[0];
         fishContainer.children[0].children[0].material.color.g= hexToRgb(fishCol)[1];
         fishContainer.children[0].children[0].material.color.b= hexToRgb(fishCol)[2];
-        fishContainer.children[0].children[0].material.needsUpdate= true;
-        console.log("volor?", fishContainer.children[0].children[0].material.color);
+        fishContainer.children[0].children[0].material.needsUpdate= true;        
         renderer.render(scene, camera);
     }
 
@@ -87,9 +86,7 @@ function setAudioContext(){
     analyser.connect(context.destination); 
     //FFTSize Deberia ser una potencia de 2
     analyser.fftSize = 1024;//512
-     //frequencyBinCount son la cantidad de bins donde dividimos los rangos de frecuencia. Deberia ser la mitad de fftSize
-    console.log(context);
-     
+     //frequencyBinCount son la cantidad de bins donde dividimos los rangos de frecuencia. Deberia ser la mitad de fftSize    
     return analyser;
 }
 
@@ -128,11 +125,6 @@ function play3(fftSize) {
 
     var musicAvg = lowerAvgFr*100.0;
 
-
-
-
-
-
     var texture_loader = new THREE.TextureLoader();
     texture_loader.load("textures/seafloor.png", function(texture){
         scene.background = texture;
@@ -159,9 +151,10 @@ function play3(fftSize) {
     camera.position.set( 0,0,0);
     camera.position.set( 40,0,-30);
     camera.rotation.y -= 1.5;
-    /*///////////////////////////SETTING Scene Objects////////////*/ 
     //controls = new THREE.OrbitControls(camera, renderer.domElement);
     //controls.update();
+    /*///////////////////////////SETTING Scene Objects////////////*/ 
+
 
     fishGroup = new THREE.Group();
     fishGroup.position.set(300,0,0);
@@ -177,7 +170,7 @@ function play3(fftSize) {
     const texture = new THREE.TextureLoader().load( 'textures/particle_texture.jpeg' );  
 
 
-    //const color = THREE.MathUtils.randInt(0, 0xffffff);
+    
     var color2 = 0x00ff00;
     var color3= 0x2e8b57;
     var color1= 0xffff55;
@@ -196,9 +189,6 @@ function play3(fftSize) {
     cubeMaterial4.blending = THREE.AdditiveBlending;
     cubeMaterial4.transparent= true;
     cubeMaterial4.map = texture;
-
-
-
   
    
 
@@ -236,7 +226,7 @@ function play3(fftSize) {
         cube.position.x = x;  
         cube.visible = false;   
         faunaGroup.add(cube);      
-        //console.log(cube.name, cube.position);
+        
         
     }
 
@@ -246,18 +236,6 @@ function play3(fftSize) {
         cube.name = "fish_container"+i;
         fishGroup.add(cube);              
     }
-
-    /*frequencyArray2 = new Uint8Array(frequencyArray.length*3);
-
-    for(var i = 0; i< frequencyArray.length; i++){
-        frequencyArray2[i+0]= frequencyArray[i];
-        frequencyArray2[i+1]= frequencyArray[i+1];
-        frequencyArray2[i+2]= frequencyArray[i+2];
-
-    }*/    
-
-    //var texture2 =new THREE.DataTexture( frequencyArray2, 512, 1, THREE.RGBFormat );
-
 
 
     let uniforms = {
@@ -280,27 +258,11 @@ function play3(fftSize) {
     depthTest: true,
     });
 
-    var dummy = new THREE.Mesh(TorusGeometry , DummyMaterial);
-    //dummy.rotation.y +=1.5; 
+    var dummy = new THREE.Mesh(TorusGeometry , DummyMaterial);    
     dummy.rotation.x +=Math.PI/2; 
     dummy.position.set(300, 0,-100);
-
-    //dummy.position.set(300, 0,100);
-    
     dummy.name = "dummy";
 
-    /*var dummy2 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
-    dummy2.position.set(-1000, 0,100);
-
-    var dummy3 = new THREE.Mesh(SphereGeometry , lambertMaterial);
-    dummy3.position.set(0, 0,1000);
-
-    var dummy4 =  new THREE.Mesh(SphereGeometry , lambertMaterial);
-    dummy4.position.set(0, 0,-1000);
-*/
-
-   
-    //fishCol= document.getElementById('fishColor').value;  
     /*/////////////////////////LOADING Scene Objects ////////////*/
 
     const loader = new THREE.GLTFLoader();
@@ -331,46 +293,14 @@ function play3(fftSize) {
     ambientLight = new THREE.AmbientLight(0xffffff);
     ambientLight.name = "ambientLight";   
 
-    var spotlight3 = new THREE.SpotLight(0xff0000);
-    spotlight3.name = "spotlight3";
-    spotlight3.position.set(+700,50,100);
-    spotlight3.castShadow = true;
-    spotlight3.rotation.x -=1.5;
-    spotlight3.target = fishGroup;
-    
-    var spotlight4 = new THREE.SpotLight(0x0000ff);
-    spotlight4.name = "spotlight4";
-    spotlight4.position.set(-700,50,100);
-    spotlight4.castShadow = true;
-    spotlight4.rotation.x -=1.5;
-    spotlight4.target = fishGroup;
-
-    console.log("light?", fishGroup);
-
-    const helper3 = new THREE.SpotLightHelper( spotlight3, 0x00ffff );
-    const helper4 = new THREE.SpotLightHelper( spotlight4, 0x0000ff );
-
-
     /*////////////////////ADDING TO SCENE///////////////////**/
     fishGroup.add(faunaGroup);
     centerGroup.add(fishGroup);
     scene.add(centerGroup);    
     scene.add(ambientLight);
-    
-   // fishGroup.add(spotlight3 );
-    //fishGroup.add(spotlight4 );
     scene.add(dummy);
-    /*scene.add(dummy2);
-    scene.add(dummy3);
-    scene.add(dummy4);*/
-    //fishGroup.add(helper3);
-    //fishGroup.add(helper4);
-    //scene.add(camera);
     render3();
-    document.getElementById('out').appendChild(renderer.domElement); 
-
-
-
+    document.getElementById('out').appendChild(renderer.domElement);
 
 
     function render3(){
@@ -407,8 +337,7 @@ function fish_update(scene){
         box=scene.getObjectByName('centerGroup').children[0].getObjectByName("fish_container"+i);
         box.position.z = -fishFrequency[i];       
         
-    }
-    console.log("scene", scene);
+    }    
 }
 
 function fauna_update(scene, frequencyArray){
@@ -463,8 +392,6 @@ function rotation_update(scene, speed){
 
 
 function lights_update(scene){
-       // scene.getObjectByName('centerGroup').children[0].getObjectByName("spotlight3").intensity = lowerMaxFr;
-       // console.log("df",lowerAvgFr) ;
         scene.getObjectByName('ambientLight').intensity = frequencyArray[0]/100;
         if(frequencyArray>200){
             var h = 100;
@@ -515,27 +442,9 @@ var vizInit = function (){
   }
 }
 
-
-
-
 window.onload = vizInit();
 
-/*precision highp float;
-varying vec3 vNormal;
 
-#pragma glslify: snoise4 = require(glsl-noise/simplex/4d)
-
-uniform float u_time;
-uniform float u_amplitude;
-uniform float u_frequency;
-
-void main () {
-  vNormal = normalMatrix * normalize(normal);
-  float distortion = snoise4(vec4(normal * u_frequency, u_time)) * u_amplitude;
-  vec3 newPosition = position + (normal * distortion);
-
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-}*/
 
 
    function vertexShader() {
@@ -550,79 +459,81 @@ void main () {
         uniform float time; 
 
         //  Simplex 3D Noise 
-//  by Ian McEwan, Ashima Arts
-//
-vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
-vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 
-float snoise(vec3 v){ 
-  const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
-  const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
 
-// First corner
-  vec3 i  = floor(v + dot(v, C.yyy) );
-  vec3 x0 =   v - i + dot(i, C.xxx) ;
+    //  by Ian McEwan, Ashima Arts
+    //
+    vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+    vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 
-// Other corners
-  vec3 g = step(x0.yzx, x0.xyz);
-  vec3 l = 1.0 - g;
-  vec3 i1 = min( g.xyz, l.zxy );
-  vec3 i2 = max( g.xyz, l.zxy );
+    float snoise(vec3 v){ 
+    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
 
-  //  x0 = x0 - 0. + 0.0 * C 
-  vec3 x1 = x0 - i1 + 1.0 * C.xxx;
-  vec3 x2 = x0 - i2 + 2.0 * C.xxx;
-  vec3 x3 = x0 - 1. + 3.0 * C.xxx;
+    // First corner
+    vec3 i  = floor(v + dot(v, C.yyy) );
+    vec3 x0 =   v - i + dot(i, C.xxx) ;
 
-// Permutations
-  i = mod(i, 289.0 ); 
-  vec4 p = permute( permute( permute( 
+    // Other corners
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min( g.xyz, l.zxy );
+    vec3 i2 = max( g.xyz, l.zxy );
+
+    //  x0 = x0 - 0. + 0.0 * C 
+    vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+    vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+    vec3 x3 = x0 - 1. + 3.0 * C.xxx;
+
+    // Permutations
+    i = mod(i, 289.0 ); 
+    vec4 p = permute( permute( permute( 
              i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
            + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
 
-// Gradients
-// ( N*N points uniformly over a square, mapped onto an octahedron.)
-  float n_ = 1.0/7.0; // N=7
-  vec3  ns = n_ * D.wyz - D.xzx;
+    // Gradients
+    // ( N*N points uniformly over a square, mapped onto an octahedron.)
+    float n_ = 1.0/7.0; // N=7
+    vec3  ns = n_ * D.wyz - D.xzx;
 
-  vec4 j = p - 49.0 * floor(p * ns.z *ns.z);  //  mod(p,N*N)
+    vec4 j = p - 49.0 * floor(p * ns.z *ns.z);  //  mod(p,N*N)
 
-  vec4 x_ = floor(j * ns.z);
-  vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_ );    // mod(j,N)
 
-  vec4 x = x_ *ns.x + ns.yyyy;
-  vec4 y = y_ *ns.x + ns.yyyy;
-  vec4 h = 1.0 - abs(x) - abs(y);
+    vec4 x = x_ *ns.x + ns.yyyy;
+    vec4 y = y_ *ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
 
-  vec4 b0 = vec4( x.xy, y.xy );
-  vec4 b1 = vec4( x.zw, y.zw );
+    vec4 b0 = vec4( x.xy, y.xy );
+    vec4 b1 = vec4( x.zw, y.zw );
 
-  vec4 s0 = floor(b0)*2.0 + 1.0;
-  vec4 s1 = floor(b1)*2.0 + 1.0;
-  vec4 sh = -step(h, vec4(0.0));
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
 
-  vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
-  vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
 
-  vec3 p0 = vec3(a0.xy,h.x);
-  vec3 p1 = vec3(a0.zw,h.y);
-  vec3 p2 = vec3(a1.xy,h.z);
-  vec3 p3 = vec3(a1.zw,h.w);
+    vec3 p0 = vec3(a0.xy,h.x);
+    vec3 p1 = vec3(a0.zw,h.y);
+    vec3 p2 = vec3(a1.xy,h.z);
+    vec3 p3 = vec3(a1.zw,h.w);
 
-//Normalise gradients
-  vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
-  p0 *= norm.x;
-  p1 *= norm.y;
-  p2 *= norm.z;
-  p3 *= norm.w;
+    //Normalise gradients
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+    p0 *= norm.x;
+    p1 *= norm.y;
+    p2 *= norm.z;
+    p3 *= norm.w;
 
-// Mix final noise value
-  vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-  m = m * m;
-  return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+    // Mix final noise value
+    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
                                 dot(p2,x2), dot(p3,x3) ) );
-} 
+    } 
 
         
 
@@ -649,6 +560,7 @@ float snoise(vec3 v){
         }
     `
     }
+
     function fragmentShader(){
       return `
 
@@ -687,31 +599,17 @@ const size = width * height;
 const data = new Uint8Array( 3 * size );
 var frequencyClone = frequencyArray;
 
-
-
 var j = 0.0;
 for ( let i = 0; i < size; i ++ ) {
-
     const stride = i * 3;
-    
-
     data[ stride ] = frequencyClone[i%256];
-    /*if(musicAvg>0){
-        data[ stride + 1 ] = j;
-    }else{
-        data[ stride + 1 ] = 0.0;
-    }*/
     data[ stride + 1 ] = j;
     data[ stride + 2 ] = 0.0;
-
     if(j <100.0){
         j++;
     }else{
         j=0.0;
     }
-
-
-
 }
 // used the buffer to create a DataTexture
 
@@ -721,30 +619,14 @@ return texture;
 
 
 function dummy_update(scene, lowerAvgFr){
-    //console.log("djlad", scene.getObjectByName("dummy"));
-    console.log(typeof lowerAvgFr);
     jojo=parseFloat(lowerAvgFr)*100.0;
-    console.log("jojo",jojo); 
     joje = parseFloat(upperAvgFr)*100.0;
     scene.getObjectByName("dummy").material.uniforms['musicAvg'].value=jojo;
     scene.getObjectByName("dummy").material.uniforms['musicHigh'].value=joje;
     scene.getObjectByName("dummy").material.uniforms['time'].value=art_time/1000;
 
     scene.getObjectByName("dummy").material.uniforms['spectrum'].value= createDataTexture(frequencyArray, jojo);
-    art_time++;
-    //scene.getObjectByName("dummy").material.needsUpdate = true;
+    art_time++;   
 }
 
 
-    /*    void main() {
-            vUv = position; 
-        vec3 transformed = vec3(position); 
-        transformed.x = position.x + position.y/musicAvg*10.0;     
-        vec4 modelViewPosition = modelViewMatrix * vec4(position+vec3(musicAvg, musicAvg,musicAvg), 1.0);
-        gl_Position = projectionMatrix * modelViewPosition ; 
-        }
-
-         gl_FragColor = texture2D(spectrum, vao);
-
-        
-    `*/

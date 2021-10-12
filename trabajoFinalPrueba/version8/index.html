@@ -1,0 +1,57 @@
+  
+
+<doctype html>
+<html>
+<head>
+<title> FCG 2021 - TPfinal</title>
+
+<meta charset="UTF-8">
+<meta name="description" content="A music visualizator">
+<meta name="keywords" content="HTML, CSS, JavaScript">
+<meta name="author" content="Alicia A. Alvarez Mon">
+
+<!--favicon icon -->
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+<!-- estilo-->
+<link href="style.css" rel="stylesheet">
+
+<script type="text/javascript" id="includedscript" src="node_modules/three/build/three.js"></script>
+<script type="text/javascript" id="includedscript" src="geometriesAndmaterials.js"></script>
+<script type="text/javascript" id="includedscript" src="auxiliares.js"></script>
+<script type="text/javascript" id="my_shaders"     src="shaders.js"></script>
+<script type="text/javascript" id="includedscript" src="sceneGroups.js"></script>
+<script type="text/javascript" id="includedscript" src="visualization.js"></script>
+<script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
+<script type="text/javascript" src="https://cdn.rawgit.com/josephg/noisejs/master/perlin.js"></script>
+<script src="node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
+
+
+
+</head>
+<!--<body onresize="onWindowResize()">-->
+<body>
+  <div id="content">
+    
+    <label for="thefile" class="file"> Choose an audio file
+      <input type="file" id="thefile" onchange="LoadMusic(this)"accept="audio/*" />
+    </label>
+
+    <audio id="audio" controls></audio>
+    <label for ="thespeedbar" class="button"> Song speed <input class="playback-rate-control" id="thespeedbar" type="range" min="0.25" max="3" step="0.05" value= "1" >      
+    <span class="playback-rate-value"></span></label>
+    <label for ="rotation_global" class="button2"> Rotate Global<input id="auto-rotate" name="auto-rotate" type="checkbox" onchange="GlobalRotate()"/></label>
+    <label for ="rotation_local" class="button3"> Rotate Local<input id="auto-rotate-local" name="auto-rotate-local" type="checkbox" onchange="LocalRotate()"/></label>
+    <div id="out"></div>
+  </div>
+
+
+
+
+</body>
+
+
+
+</html>
+

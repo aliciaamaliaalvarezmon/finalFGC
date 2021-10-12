@@ -22,7 +22,6 @@ html, body{
   overflow: hidden;
   height: 100vh;
   width: 100vw;
- /* background: black;*/
   background: var(--bgColor);
   background: linear-gradient(135deg, var(--bgColor), var(--bgColorLight));   
   color: var(--textColor);
@@ -30,11 +29,7 @@ html, body{
   position: relative;
   
 }
-/*Selects all elements*/
-/**{
-  box-sizing: border-box;
-  transition: all 0.12s cubic-bezier(0.42, 0.54, 0.22, 1.26);
-}*/
+
 
 #canvas {
   position: fixed;
