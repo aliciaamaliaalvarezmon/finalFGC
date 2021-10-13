@@ -42,7 +42,7 @@ function setBubbleGroup(bubbleGroup){
             z = -250;            
         }  
 
-        console.log("bubblepos", x, y, z);   
+          
 
 
         cube.visible = false;   
@@ -64,7 +64,7 @@ function setFishGroup(fishGroup){
 
     const loader = new THREE.GLTFLoader();
 
-    loader.load( 'colorfish1.glb', function ( gltf ) {
+    loader.load( 'textures/colorfish1.glb', function ( gltf ) {
 
     for(var i=0; i< FishQuantity; i++){
         let copy= gltf.scene.clone();        
